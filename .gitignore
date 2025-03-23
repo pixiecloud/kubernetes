@@ -3,3 +3,15 @@
 .1-secrets
 /1-secrets
 /.1-secrets
+
+5-pixies
+5-pixies/
+
+6-argocd
+6-argocd/
+
+7-minio
+7-minio/
+
+8-efk-bigbang
+8-efk-bigbang/
