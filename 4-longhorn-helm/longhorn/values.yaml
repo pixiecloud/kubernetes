@@ -1,0 +1,262 @@
+global:
+  tolerations: []
+  nodeSelector: {}
+  cattle:
+    systemDefaultRegistry: ""
+    windowsCluster:
+      enabled: false
+      tolerations:
+        - key: "cattle.io/os"
+          value: "linux"
+          effect: "NoSchedule"
+          operator: "Equal"
+      nodeSelector:
+        kubernetes.io/os: "linux"
+      defaultSetting:
+        taintToleration: cattle.io/os=linux:NoSchedule
+        systemManagedComponentsNodeSelector: kubernetes.io/os:linux
+networkPolicies:
+  enabled: false
+  type: "k3s"
+image:
+  longhorn:
+    engine:
+      repository: longhornio/longhorn-engine
+      tag: v1.8.1
+    manager:
+      repository: longhornio/longhorn-manager
+      tag: v1.8.1
+    ui:
+      repository: longhornio/longhorn-ui
+      tag: v1.8.1
+    instanceManager:
+      repository: longhornio/longhorn-instance-manager
+      tag: v1.8.1
+    shareManager:
+      repository: longhornio/longhorn-share-manager
+      tag: v1.8.1
+    backingImageManager:
+      repository: longhornio/backing-image-manager
+      tag: v1.8.1
+    supportBundleKit:
+      repository: longhornio/support-bundle-kit
+      tag: v0.0.52
+  csi:
+    attacher:
+      repository: longhornio/csi-attacher
+      tag: v4.8.1
+    provisioner:
+      repository: longhornio/csi-provisioner
+      tag: v5.2.0
+    nodeDriverRegistrar:
+      repository: longhornio/csi-node-driver-registrar
+      tag: v2.13.0
+    resizer:
+      repository: longhornio/csi-resizer
+      tag: v1.13.2
+    snapshotter:
+      repository: longhornio/csi-snapshotter
+      tag: v8.2.0
+    livenessProbe:
+      repository: longhornio/livenessprobe
+      tag: v2.15.0
+  openshift:
+    oauthProxy:
+      repository: ""
+      tag: ""
+  pullPolicy: IfNotPresent
+service:
+  ui:
+    type: ClusterIP
+    nodePort: null
+  manager:
+    type: ClusterIP
+    nodePort: ""
+persistence:
+  defaultClass: true
+  defaultFsType: ext4
+  defaultMkfsParams: ""
+  defaultClassReplicaCount: 3
+  defaultDataLocality: disabled
+  reclaimPolicy: Delete
+  migratable: false
+  disableRevisionCounter: "true"
+  nfsOptions: ""
+  recurringJobSelector:
+    enable: false
+    jobList: []
+  backingImage:
+    enable: false
+    name: ~
+    dataSourceType: ~
+    dataSourceParameters: ~
+    expectedChecksum: ~
+  defaultDiskSelector:
+    enable: false
+    selector: ""
+  defaultNodeSelector:
+    enable: false
+    selector: ""
+  removeSnapshotsDuringFilesystemTrim: ignored
+  dataEngine: v1
+  backupTargetName: ""
+preUpgradeChecker:
+  jobEnabled: true
+  upgradeVersionCheck: true
+csi:
+  kubeletRootDir: ~
+  attacherReplicaCount: ~
+  provisionerReplicaCount: ~
+  resizerReplicaCount: ~
+  snapshotterReplicaCount: ~
+defaultSettings:
+  defaultDataPath: /var/lib/longhorn
+  createDefaultDiskLabeledNodes: true
+  disableRevisionCounter: "true"
+  priorityClass: "longhorn-critical"
+  defaultDataLocality: ~
+  replicaSoftAntiAffinity: ~
+  replicaAutoBalance: ~
+  storageOverProvisioningPercentage: ~
+  storageMinimalAvailablePercentage: ~
+  storageReservedPercentageForDefaultDisk: ~
+  upgradeChecker: ~
+  upgradeResponderURL: ~
+  defaultReplicaCount: ~
+  defaultLonghornStaticStorageClass: ~
+  failedBackupTTL: ~
+  backupExecutionTimeout: ~
+  restoreVolumeRecurringJobs: ~
+  recurringSuccessfulJobsHistoryLimit: ~
+  recurringFailedJobsHistoryLimit: ~
+  recurringJobMaxRetention: ~
+  supportBundleFailedHistoryLimit: ~
+  taintToleration: ~
+  systemManagedComponentsNodeSelector: ~
+  priorityClass: "longhorn-critical"
+  autoSalvage: ~
+  autoDeletePodWhenVolumeDetachedUnexpectedly: ~
+  disableSchedulingOnCordonedNode: ~
+  replicaZoneSoftAntiAffinity: ~
+  replicaDiskSoftAntiAffinity: ~
+  nodeDownPodDeletionPolicy: ~
+  nodeDrainPolicy: ~
+  detachManuallyAttachedVolumesWhenCordoned: ~
+  replicaReplenishmentWaitInterval: ~
+  concurrentReplicaRebuildPerNodeLimit: ~
+  concurrentVolumeBackupRestorePerNodeLimit: ~
+  disableRevisionCounter: "true"
+  systemManagedPodsImagePullPolicy: ~
+  allowVolumeCreationWithDegradedAvailability: ~
+  autoCleanupSystemGeneratedSnapshot: ~
+  autoCleanupRecurringJobBackupSnapshot: ~
+  concurrentAutomaticEngineUpgradePerNodeLimit: ~
+  backingImageCleanupWaitInterval: ~
+  backingImageRecoveryWaitInterval: ~
+  guaranteedInstanceManagerCPU: ~
+  kubernetesClusterAutoscalerEnabled: ~
+  orphanAutoDeletion: ~
+  storageNetwork: ~
+  deletingConfirmationFlag: ~
+  engineReplicaTimeout: ~
+  snapshotDataIntegrity: ~
+  snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: ~
+  snapshotDataIntegrityCronjob: ~
+  removeSnapshotsDuringFilesystemTrim: ~
+  fastReplicaRebuildEnabled: ~
+  replicaFileSyncHttpClientTimeout: ~
+  longGRPCTimeOut: ~
+  logLevel: ~
+  backupCompressionMethod: ~
+  backupConcurrentLimit: ~
+  restoreConcurrentLimit: ~
+  v1DataEngine: ~
+  v2DataEngine: ~
+  v2DataEngineHugepageLimit: ~
+  v2DataEngineGuaranteedInstanceManagerCPU: ~
+  v2DataEngineCPUMask: ~
+  allowEmptyNodeSelectorVolume: ~
+  allowEmptyDiskSelectorVolume: ~
+  allowCollectingLonghornUsageMetrics: ~
+  disableSnapshotPurge: ~
+  snapshotMaxCount: ~
+  v2DataEngineLogLevel: ~
+  v2DataEngineLogFlags: ~
+  freezeFilesystemForSnapshot: ~
+  autoCleanupSnapshotWhenDeleteBackup: ~
+  rwxVolumeFastFailover: ~
+defaultBackupStore:
+  backupTarget: ~
+  backupTargetCredentialSecret: ~
+  pollInterval: ~
+privateRegistry:
+  createSecret: ~
+  registryUrl: ~
+  registryUser: ~
+  registryPasswd: ~
+  registrySecret: ~
+longhornManager:
+  log:
+    format: plain
+  nodeSelector:
+    longhorn-node: "true"
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "longhorn"
+      effect: "NoSchedule"
+
+  serviceAnnotations: {}
+
+longhornDriver:
+  log:
+    format: plain
+
+  nodeSelector:
+    longhorn-node: "true"
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "longhorn"
+      effect: "NoSchedule"
+longhornUI:
+  replicas: 2
+  nodeSelector:
+    longhorn-node: "true"
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "longhorn"
+      effect: "NoSchedule"
+ingress:
+  enabled: false
+  ingressClassName: ~
+  host: sslip.io
+  tls: false
+  secureBackends: false
+  tlsSecret: longhorn.local-tls
+  path: /
+  pathType: ImplementationSpecific
+  annotations:
+  secrets:
+enablePSP: false
+namespaceOverride: ""
+annotations: {}
+serviceAccount:
+  annotations: {}
+metrics:
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    annotations: {}
+    interval: ""
+    scrapeTimeout: ""
+    relabelings: []
+    metricRelabelings: []
+openshift:
+  enabled: false
+  ui:
+    route: "longhorn-ui"
+    port: 443
+    proxy: 8443
+enableGoCoverDir: false
