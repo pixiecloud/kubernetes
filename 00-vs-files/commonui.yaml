@@ -1,0 +1,32 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: commonui
+  namespace: pixies
+spec:
+  hosts:
+    - dashboard.pixiescloud.com
+  gateways:
+    - istio-system/pixie-gateway  # Replace with your actual Istio Gateway if different
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: commonui.opr-develop.svc.cluster.local
+            port:
+              number: 5000
+      corsPolicy:
+        allowOrigin:
+          - "*"
+        allowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        allowHeaders:
+          - "*"
+        exposeHeaders:
+          - "*"
+        maxAge: "24h"
+        allowCredentials: true

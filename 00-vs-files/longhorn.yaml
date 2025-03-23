@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  labels:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  gateways:
+  - istio-system/pixie-gateway
+  hosts:
+  - 'longhorn.pixiescloud.com'
+  http:
+  - retries:
+      attempts: 3
+      perTryTimeout: 2s
+    match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: longhorn-frontend
+        port:
+          number: 80
