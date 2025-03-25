@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: awx
+  namespace: awx-operator
+spec:
+  hosts:
+  - ansibletower.pixiescloud.com
+  gateways:
+  - istio-system/pixie-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: awx-service
+        port:
+          number: 80
+    retries:
+      attempts: 3
+      perTryTimeout: 2s

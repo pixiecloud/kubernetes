@@ -1,0 +1,85 @@
+name: XCite CI/CD with Argo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Push the images
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Bump versions
+      id: bump_versions
+      run: |
+        chmod +x scripts/bump_version.sh
+        ./scripts/bump_version.sh
+        new_version=$(cat VERSION)
+        echo "new_version=$new_version" >> $GITHUB_ENV
+        echo "::set-output name=new_version::$new_version"
+
+    - name: Update YAML files with new versions
+      run: |
+        new_version=$(cat VERSION)
+        echo "Updating YAML files with versions $new_version"
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/source-pipeline.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/recon-pipeline.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/world-pipeline.yaml
+        echo "Updated YAML files"
+
+    - name: Commit updated files
+      run: |
+        git config --global user.name 'sosotechnologies'
+        git config --global user.email 'sosotech2000@gmail.com'
+        git add VERSION argo-artifacts/source-pipeline.yaml argo-artifacts/recon-pipeline.yaml argo-artifacts/world-pipeline.yaml
+        git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }}" || echo "No changes to commit"
+        git stash
+        git pull --rebase origin main
+        git stash pop || echo "No stashed changes"
+        git push origin main
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and Push worker image
+      run: |
+        cd docker/worker
+        docker build --build-arg RUNNER_VERSION=${{ secrets.RUNNER_VERSION }} -t ${{ steps.bump_versions.outputs.new_version }} .
+        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
+        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        REPOSITORY=runners
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker push $ECR_REGISTRY/$REPOSITORY:latest
+        cd ../..
+
+    - name: Run Trivy vulnerability scanner for worker
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/runners:${{ steps.bump_versions.outputs.new_version }}
+        format: 'table'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'MEDIUM,HIGH,CRITICAL'
+        output: 'docker/worker/trivy-report-worker.txt'
+
+    - name: Upload Trivy report for worker
+      uses: actions/upload-artifact@v3
+      with:
+        name: trivy-report-worker
+        path: docker/worker/trivy-report-worker.txt

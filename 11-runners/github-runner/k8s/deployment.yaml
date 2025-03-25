@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-actions-runner
+  namespace: github-runner-system
+  labels:
+    app: github-actions-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: github-actions-runner
+  template:
+    metadata:
+      labels:
+        app: github-actions-runner
+    spec:
+      containers:
+        - name: github-actions-runner
+          image: cafanwii/github-actions-runner:latest
+          env:
+            - name: GH_OWNER
+              value: "pixiecloud"
+            - name: GH_REPOSITORY
+              value: "gh-wf"
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-pat-secret
+                  key: GH_TOKEN
